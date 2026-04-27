@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enes Sertkan | Web Design for Trades & Contractors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --midnight:    #04040f;
+      --deep:        #0a0a1e;
+      --purple-dark: #130828;
+      --gold:        #c9a84c;
+      --gold-light:  #f0d280;
+      --gold-dim:    #7a6030;
+      --cyan:        #56d9d0;
+      --cyan-dim:    #2a7a75;
+      --cream:       #f3e2c0;
+      --mist:        rgba(243,226,192,0.72);
+      --glow-gold:   0 0 18px rgba(201,168,76,.55), 0 0 40px rgba(201,168,76,.25);
+      --glow-cyan:   0 0 18px rgba(86,217,208,.5),  0 0 40px rgba(86,217,208,.2);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--midnight);
+      color: var(--cream);
+      font-family: 'EB Garamond', serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ─────────────────────────────── */
+    #cursor {
+      position: fixed; width: 22px; height: 22px;
+      border: 1.5px solid var(--gold); border-radius: 50%;
+      pointer-events: none; z-index: 99999;
+      transform: translate(-50%,-50%);
+      transition: transform .08s ease, width .2s, height .2s, border-color .2s;
+      mix-blend-mode: exclusion;
+    }
+    #cursor.big { width:48px; height:48px; border-color:var(--cyan); }
+    #cursor-dot {
+      position:fixed; width:5px; height:5px;
+      background:var(--gold); border-radius:50%;
+      pointer-events:none; z-index:99999;
+      transform:translate(-50%,-50%);
+    }
+
+    /* ── THREE.JS CANVAS ─────────────────────── */
+    #bg {
+      position:fixed; top:0; left:0;
+      width:100%; height:100%; z-index:0;
+    }
+
+    /* ── CONTENT LAYER ───────────────────────── */
+    #content { position:relative; z-index:10; }
+
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:500;
+      padding:1.4rem 4rem;
+      display:flex; justify-content:space-between; align-items:center;
+      background:linear-gradient(to bottom,rgba(4,4,15,.88) 0%,transparent 100%);
+      backdrop-filter:blur(4px);
+    }
+    .nav-logo {
+      font-family:'Cinzel Decorative',serif;
+      font-size:1.1rem; color:var(--gold);
+      text-shadow:var(--glow-gold); letter-spacing:3px;
+    }
+    .nav-links { display:flex; gap:2.8rem; list-style:none; }
+    .nav-links a {
+      color:var(--cream); text-decoration:none;
+      font-family:'Cinzel',serif; font-size:.72rem;
+      letter-spacing:2.5px; text-transform:uppercase;
+      transition:color .3s, text-shadow .3s; opacity:.75;
+    }
+    .nav-links a:hover { color:var(--gold); text-shadow:var(--glow-gold); opacity:1; }
+
+    /* ── HERO ────────────────────────────────── */
+    #hero {
+      height:100vh; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; text-align:center;
+      position:relative; padding:2rem;
+    }
+    .hero-sub {
+      font-family:'Cinzel',serif; font-size:.75rem;
+      letter-spacing:6px; color:var(--cyan); text-transform:uppercase;
+      margin-bottom:1.6rem; text-shadow:var(--glow-cyan);
+      opacity:0; animation:fadeUp 1s ease .5s forwards;
+    }
+    .hero-title {
+      font-family:'Cinzel Decorative',serif;
+      font-size:clamp(3.2rem,9vw,7.5rem);
+      color:var(--cream); line-height:1.05; margin-bottom:1rem;
+      opacity:0; animation:fadeUp 1s ease .8s forwards;
+    }
+    .hero-title .gold { color:var(--gold); text-shadow:var(--glow-gold); }
+    .hero-tagline {
+      font-size:clamp(1rem,2vw,1.35rem); color:var(--mist);
+      font-style:italic; max-width:600px; line-height:1.85;
+      margin-bottom:3.2rem;
+      opacity:0; animation:fadeUp 1s ease 1.1s forwards;
+    }
+    .hero-btns {
+      display:flex; gap:1.8rem; flex-wrap:wrap; justify-content:center;
+      opacity:0; animation:fadeUp 1s ease 1.4s forwards;
+    }
+    .btn {
+      font-family:'Cinzel',serif; font-size:.78rem;
+      letter-spacing:3px; text-transform:uppercase;
+      padding:.9rem 2.8rem; text-decoration:none;
+      transition:all .35s; cursor:none;
+      display:inline-flex; align-items:center; gap:.6rem;
+    }
+    .btn-gold {
+      border:1px solid var(--gold); color:var(--gold);
+      background:transparent; position:relative; overflow:hidden;
+    }
+    .btn-gold::after {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent,rgba(201,168,76,.18),transparent);
+      transform:translateX(-100%); transition:transform .5s;
+    }
+    .btn-gold:hover::after { transform:translateX(100%); }
+    .btn-gold:hover { box-shadow:var(--glow-gold); color:var(--gold-light); }
+    .btn-cyan { border:1px solid var(--cyan); color:var(--cyan); background:transparent; }
+    .btn-cyan:hover { box-shadow:var(--glow-cyan); background:rgba(86,217,208,.07); }
+    .scroll-hint {
+      position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column; align-items:center; gap:.4rem;
+      opacity:0; animation:fadeIn 1s ease 2.2s forwards;
+    }
+    .scroll-hint span { font-family:'Cinzel',serif; font-size:.6rem; letter-spacing:3px; color:var(--gold-dim); }
+    .scroll-line {
+      width:1px; height:46px;
+      background:linear-gradient(to bottom,var(--gold-dim),transparent);
+      animation:scrollDrop 2s ease-in-out infinite;
+    }
+
+    /* ── DIVIDER ─────────────────────────────── */
+    .rune-divider {
+      width:100%; display:flex; align-items:center;
+      justify-content:center; gap:1.8rem; padding:1.5rem 4rem;
+    }
+    .rune-divider::before,.rune-divider::after {
+      content:''; flex:1; max-width:280px; height:1px;
+      background:linear-gradient(to right,transparent,var(--gold-dim),transparent);
+    }
+    .rune-sym { color:var(--gold); font-size:1.1rem; opacity:.6; }
+
+    /* ── SECTION COMMONS ─────────────────────── */
+    .section-label {
+      font-family:'Cinzel',serif; font-size:.72rem;
+      letter-spacing:6px; color:var(--cyan); text-transform:uppercase;
+      margin-bottom:1.4rem; opacity:.9;
+    }
+    .section-title {
+      font-family:'Cinzel Decorative',serif;
+      font-size:clamp(2rem,4vw,3.4rem);
+      color:var(--cream); line-height:1.2; margin-bottom:2rem;
+    }
+    .section-title .acc { color:var(--gold); text-shadow:var(--glow-gold); }
+
+    /* ── ABOUT ───────────────────────────────── */
+    #about {
+      padding:9rem 4rem; min-height:100vh;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .about-inner {
+      max-width:1180px; width:100%;
+      display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;
+    }
+    .about-text p { color:var(--mist); font-size:1.12rem; line-height:1.95; margin-bottom:1.4rem; }
+    .trades-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:2rem;
+    }
+    .trade-chip {
+      display:flex; align-items:center; gap:.65rem;
+      font-family:'Cinzel',serif; font-size:.72rem;
+      color:var(--gold-dim); letter-spacing:1px;
+      padding:.5rem .8rem; border:1px solid rgba(201,168,76,.12);
+      transition:all .3s;
+    }
+    .trade-chip:hover { border-color:rgba(201,168,76,.4); color:var(--gold); background:rgba(201,168,76,.05); }
+    .trade-chip::before { content:'⧫'; color:var(--gold); text-shadow:var(--glow-gold); font-size:.65rem; }
+
+    .crystal-stat {
+      background:linear-gradient(135deg,rgba(30,10,70,.7),rgba(10,10,30,.85));
+      border:1px solid rgba(201,168,76,.25);
+      padding:3.5rem 2.5rem; text-align:center;
+      position:relative; overflow:hidden;
+    }
+    .crystal-stat::before {
+      content:''; position:absolute; top:-1px; left:50%; transform:translateX(-50%);
+      width:55%; height:1.5px; background:var(--gold); box-shadow:var(--glow-gold);
+    }
+    .crystal-stat::after {
+      content:''; position:absolute; bottom:-1px; right:50%; transform:translateX(50%);
+      width:40%; height:1px; background:var(--cyan-dim); opacity:.5;
+    }
+    .stat-big { font-family:'Cinzel Decorative',serif; font-size:5.5rem; color:var(--gold); text-shadow:var(--glow-gold); line-height:1; }
+    .stat-label { font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:4px; color:var(--mist); margin-top:.5rem; }
+    .stat-line { height:1px; width:50%; margin:1.8rem auto; background:linear-gradient(to right,transparent,var(--gold-dim),transparent); }
+    .stat-tagline { font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:2px; color:var(--mist); opacity:.6; line-height:2; }
+
+    /* ── FEATURES ────────────────────────────── */
+    #features {
+      padding:7rem 4rem; position:relative;
+    }
+    .features-head { text-align:center; margin-bottom:4.5rem; }
+    .features-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:2rem; max-width:1180px; margin:0 auto;
+    }
+    .feat-card {
+      background:linear-gradient(145deg,rgba(19,8,40,.8),rgba(10,10,30,.9));
+      border:1px solid rgba(201,168,76,.15);
+      padding:3rem 2rem; text-align:center;
+      transition:all .4s; cursor:none; position:relative; overflow:hidden;
+    }
+    .feat-card::after {
+      content:''; position:absolute; bottom:0; left:0; width:100%; height:2px;
+      background:linear-gradient(to right,transparent,var(--gold),transparent);
+      transform:scaleX(0); transition:transform .4s;
+    }
+    .feat-card:hover::after { transform:scaleX(1); }
+    .feat-card:hover {
+      transform:translateY(-6px);
+      border-color:rgba(201,168,76,.4);
+      box-shadow:0 20px 60px rgba(201,168,76,.08);
+    }
+    .feat-icon { font-size:2.8rem; margin-bottom:1.4rem; display:block; }
+    .feat-name { font-family:'Cinzel',serif; font-size:.9rem; color:var(--gold); letter-spacing:2px; margin-bottom:1rem; }
+    .feat-desc { color:var(--mist); font-size:1rem; line-height:1.85; }
+
+    /* ── GALLERY ─────────────────────────────── */
+    #gallery { padding:8rem 0; overflow:hidden; position:relative; }
+    .gallery-head { text-align:center; margin-bottom:3.5rem; padding:0 4rem; }
+    .gallery-head p { color:var(--mist); font-style:italic; font-size:1.05rem; line-height:1.8; max-width:500px; margin:.8rem auto 0; }
+
+    .carousel-wrap { position:relative; width:100%; overflow:hidden; padding:2.5rem 0 1rem; }
+    .carousel-track {
+      display:flex; align-items:center; gap:2.2rem;
+      transition:transform .62s cubic-bezier(.25,.46,.45,.94);
+      will-change:transform;
+    }
+    .c-item {
+      flex:0 0 auto; position:relative;
+      transition:transform .55s cubic-bezier(.25,.46,.45,.94), opacity .55s, filter .55s;
+    }
+
+    /* Browser mockup card */
+    .browser-frame {
+      width:520px; background:rgba(8,6,20,.95);
+      border:1px solid rgba(201,168,76,.3);
+      box-shadow:0 30px 80px rgba(0,0,0,.6);
+      overflow:hidden;
+    }
+    .browser-bar {
+      height:38px; background:rgba(12,10,26,.98);
+      border-bottom:1px solid rgba(201,168,76,.15);
+      display:flex; align-items:center; padding:0 1rem; gap:.45rem;
+    }
+    .b-dot { width:10px; height:10px; border-radius:50%; }
+    .b-dot.r{background:#ff5f56;} .b-dot.y{background:#ffbd2e;} .b-dot.g{background:#27c93f;}
+    .b-url {
+      flex:1; margin-left:.5rem; height:22px;
+      background:rgba(255,255,255,.05); border-radius:3px;
+      display:flex; align-items:center; padding:0 .7rem;
+    }
+    .b-url span { font-size:.62rem; color:rgba(243,226,192,.35); font-family:monospace; }
+    .browser-body { height:300px; position:relative; overflow:hidden; }
+
+    /* Preview color themes */
+    .pb1{background:linear-gradient(145deg,#0c1e2a,#1a3a4a,#0d2535);}
+    .pb2{background:linear-gradient(145deg,#1a0800,#3a1200,#5a2000);}
+    .pb3{background:linear-gradient(145deg,#0a0f1a,#141e35,#0d1830);}
+    .pb4{background:linear-gradient(145deg,#0a1420,#152540,#0c1c35);}
+    .pb5{background:linear-gradient(145deg,#0d1a0a,#1a3515,#0e2510);}
+    .pb6{background:linear-gradient(145deg,#180a2a,#2a1460,#0e0820);}
+
+    .mock-wrap { width:100%; height:100%; position:relative; }
+    .mock-nav {
+      height:32px; display:flex; align-items:center;
+      justify-content:space-between; padding:0 18px;
+      background:rgba(0,0,0,.35);
+    }
+    .mock-nav-logo { width:60px; height:6px; border-radius:3px; background:rgba(255,255,255,.45); }
+    .mock-nav-links { display:flex; gap:8px; }
+    .mock-nav-link { width:30px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); }
+    .mock-hero-section {
+      height:42%; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:7px; padding:0 30px;
+    }
+    .mock-h1 { width:65%; height:10px; border-radius:5px; background:rgba(255,255,255,.55); }
+    .mock-h2 { width:45%; height:7px; border-radius:4px; background:rgba(255,255,255,.3); }
+    .mock-cta { width:80px; height:22px; border-radius:3px; background:rgba(255,255,255,.3); margin-top:4px; }
+    .mock-services {
+      padding:10px 14px; display:grid;
+      grid-template-columns:repeat(3,1fr); gap:8px;
+    }
+    .mock-svc { height:55px; border-radius:4px; background:rgba(255,255,255,.1); }
+    .card-overlay {
+      position:absolute; bottom:0; left:0; right:0;
+      padding:1rem 1.2rem;
+      background:linear-gradient(to top,rgba(0,0,0,.88) 0%,transparent 100%);
+    }
+    .card-overlay h3 { font-family:'Cinzel',serif; font-size:.95rem; color:var(--gold); margin-bottom:.2rem; }
+    .card-overlay p { font-size:.75rem; color:var(--mist); opacity:.75; }
+
+    .carousel-controls {
+      display:flex; justify-content:center; align-items:center;
+      gap:2rem; margin-top:2.5rem; padding:0 4rem;
+    }
+    .c-btn {
+      width:48px; height:48px; border:1px solid rgba(201,168,76,.35);
+      background:transparent; color:var(--gold); cursor:none;
+      font-size:1.15rem; transition:all .3s;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .c-btn:hover { background:rgba(201,168,76,.1); box-shadow:var(--glow-gold); }
+    .c-dots { display:flex; gap:.7rem; align-items:center; }
+    .c-dot {
+      width:6px; height:6px; border-radius:50%;
+      background:rgba(201,168,76,.25); transition:all .3s; cursor:none;
+    }
+    .c-dot.on { background:var(--gold); width:22px; border-radius:3px; box-shadow:var(--glow-gold); }
+
+    /* ── PROCESS ─────────────────────────────── */
+    #process { padding:8rem 4rem; position:relative; }
+    .process-head { text-align:center; margin-bottom:5rem; }
+    .timeline { max-width:860px; margin:0 auto; position:relative; }
+    .timeline-line {
+      position:absolute; left:50%; top:0; bottom:0;
+      width:1px; transform:translateX(-50%);
+      background:linear-gradient(to bottom,transparent,var(--gold-dim) 20%,var(--gold-dim) 80%,transparent);
+    }
+    .t-step {
+      display:grid; grid-template-columns:1fr 80px 1fr;
+      align-items:center; margin-bottom:4.5rem;
+    }
+    .t-step:nth-child(odd)  .t-text { grid-column:1; text-align:right; padding-right:3rem; }
+    .t-step:nth-child(odd)  .t-num  { grid-column:2; }
+    .t-step:nth-child(odd)  .t-void { grid-column:3; }
+    .t-step:nth-child(even) .t-void { grid-column:1; }
+    .t-step:nth-child(even) .t-num  { grid-column:2; }
+    .t-step:nth-child(even) .t-text { grid-column:3; text-align:left; padding-left:3rem; }
+    .t-num {
+      justify-self:center; width:58px; height:58px;
+      border:1px solid var(--gold); display:flex; align-items:center; justify-content:center;
+      font-family:'Cinzel Decorative',serif; font-size:1.1rem;
+      color:var(--gold); text-shadow:var(--glow-gold);
+      background:var(--midnight); z-index:1; position:relative;
+      transition:all .3s;
+    }
+    .t-step:hover .t-num { box-shadow:var(--glow-gold); background:rgba(201,168,76,.08); }
+    .t-title { font-family:'Cinzel',serif; font-size:.9rem; color:var(--gold); letter-spacing:2px; margin-bottom:.7rem; }
+    .t-desc { color:var(--mist); font-size:1rem; line-height:1.85; }
+
+    /* ── CTA ─────────────────────────────────── */
+    #cta {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:9rem 4rem; position:relative;
+    }
+    .cta-glow {
+      position:absolute; width:700px; height:700px; border-radius:50%;
+      background:radial-gradient(circle,rgba(201,168,76,.04) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .cta-ring {
+      width:180px; height:180px; border:1px solid rgba(201,168,76,.3);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 3rem; position:relative;
+      animation:spin 22s linear infinite;
+    }
+    .cta-ring::before {
+      content:''; position:absolute; width:140px; height:140px;
+      border:1px solid rgba(86,217,208,.2); border-radius:50%;
+      animation:spin 16s linear infinite reverse;
+    }
+    .cta-ring-inner { font-size:2.8rem; animation:spin 22s linear infinite reverse; }
+    .cta-title { font-family:'Cinzel Decorative',serif; font-size:clamp(2.4rem,5vw,4rem); line-height:1.2; margin-bottom:1.6rem; }
+    .cta-title .acc { color:var(--gold); text-shadow:var(--glow-gold); }
+    .cta-text { color:var(--mist); font-size:1.15rem; line-height:1.9; max-width:580px; margin:0 auto 3rem; }
+    .btn-cta {
+      font-family:'Cinzel',serif; font-size:.9rem; letter-spacing:4px;
+      text-transform:uppercase; padding:1.2rem 4rem;
+      background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.04));
+      border:1px solid var(--gold); color:var(--gold);
+      text-decoration:none; cursor:none; transition:all .4s;
+      display:inline-block; box-shadow:var(--glow-gold);
+    }
+    .btn-cta:hover {
+      background:linear-gradient(135deg,rgba(201,168,76,.35),rgba(201,168,76,.1));
+      box-shadow:0 0 50px rgba(201,168,76,.7),0 0 90px rgba(201,168,76,.35);
+      transform:translateY(-4px); color:var(--gold-light);
+    }
+    .cta-email-line { margin-top:2rem; font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:2px; color:var(--gold-dim); opacity:.65; }
+    .cta-email-line a { color:var(--cyan); text-decoration:none; transition:opacity .3s; }
+    .cta-email-line a:hover { opacity:.7; }
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer { padding:4rem; text-align:center; border-top:1px solid rgba(201,168,76,.08); }
+    .footer-logo { font-family:'Cinzel Decorative',serif; font-size:1.4rem; color:var(--gold); text-shadow:var(--glow-gold); margin-bottom:1.2rem; }
+    .footer-nav { display:flex; justify-content:center; gap:3rem; list-style:none; margin-bottom:2rem; }
+    .footer-nav a { font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:2px; color:var(--mist); text-decoration:none; opacity:.5; transition:opacity .3s, color .3s; }
+    .footer-nav a:hover { color:var(--gold); opacity:1; }
+    .footer-copy { font-size:.8rem; color:var(--gold-dim); opacity:.55; line-height:1.9; }
+    .footer-copy a { color:var(--cyan); text-decoration:none; }
+
+    /* ── SCROLL REVEAL ───────────────────────── */
+    .reveal { opacity:0; transform:translateY(36px); transition:opacity .8s ease, transform .8s ease; }
+    .reveal.show { opacity:1; transform:none; }
+    .delay1{transition-delay:.1s;} .delay2{transition-delay:.2s;} .delay3{transition-delay:.3s;}
+
+    /* ── KEYFRAMES ───────────────────────────── */
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:none} }
+    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+    @keyframes spin    { to{transform:rotate(360deg)} }
+    @keyframes scrollDrop {
+      0%{opacity:1;transform:scaleY(1);transform-origin:top}
+      100%{opacity:0;transform:scaleY(0);transform-origin:top}
+    }
+    @keyframes sparkle {
+      0%{opacity:1;transform:translate(0,0) scale(1)}
+      100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}
+    }
+
+    /* ── MAGIC SPARK ─────────────────────────── */
+    .spark {
+      position:fixed; width:5px; height:5px; border-radius:50%;
+      pointer-events:none; z-index:99998;
+      animation:sparkle .7s ease forwards;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media(max-width:900px){
+      nav{padding:1rem 2rem;}
+      .nav-links{display:none;}
+      .about-inner{grid-template-columns:1fr; gap:3rem;}
+      .features-grid{grid-template-columns:1fr;}
+      .timeline-line{display:none;}
+      .t-step{grid-template-columns:60px 1fr; gap:1rem;}
+      .t-step:nth-child(odd) .t-text,.t-step:nth-child(even) .t-text{text-align:left;padding:0;grid-column:2;}
+      .t-step:nth-child(odd) .t-num,.t-step:nth-child(even) .t-num{grid-column:1;grid-row:1;}
+      .t-void{display:none;}
+      .hero-btns{flex-direction:column;align-items:center;}
+      #about,#features,#process,#cta{padding:5rem 2rem;}
+      .browser-frame{width:300px;}
+      .browser-body{height:200px;}
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<nav>
+  <div class="nav-logo">ES</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#gallery">Portfolio</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#cta">Contact</a></li>
+  </ul>
+</nav>
+
+<div id="content">
+
+  <!-- ══ HERO ═══════════════════════════════════ -->
+  <section id="hero">
+    <p class="hero-sub">✦ &nbsp; Web Design &amp; Craft &nbsp; ✦</p>
+    <h1 class="hero-title">Enes<br><span class="gold">Sertkan</span></h1>
+    <p class="hero-tagline">
+      Forging powerful digital realms for contractors &amp; tradespeople —
+      where craftsmanship meets code, and every website is built to win you work.
+    </p>
+    <div class="hero-btns">
+      <a href="#gallery" class="btn btn-gold">⚜ &nbsp;View My Work</a>
+      <a href="#cta"     class="btn btn-cyan">✦ &nbsp;Free Quote</a>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ══ ABOUT ══════════════════════════════════ -->
+  <section id="about">
+    <div class="rune-divider"><span class="rune-sym">✦</span></div>
+    <div class="about-inner">
+      <div class="about-text reveal">
+        <p class="section-label">✦ &nbsp; The Craft</p>
+        <h2 class="section-title">Websites Built for<br><span class="acc">Tradespeople</span></h2>
+        <p>
+          I specialize in building high-converting, professional websites for contractors and trades businesses across Canada. Your skill on the job is second to none — your online presence should match.
+        </p>
+        <p>
+          From lone-wolf tradespeople to multi-crew operations, every site I forge is crafted to generate real leads, showcase your reputation, and work as hard as you do.
+        </p>
+        <div class="trades-grid reveal delay1">
+          <div class="trade-chip">Plumbers</div>
+          <div class="trade-chip">Electricians</div>
+          <div class="trade-chip">Roofers</div>
+          <div class="trade-chip">HVAC Specialists</div>
+          <div class="trade-chip">Carpenters</div>
+          <div class="trade-chip">General Contractors</div>
+          <div class="trade-chip">Landscapers</div>
+          <div class="trade-chip">Painters &amp; More</div>
+        </div>
+      </div>
+      <div class="reveal delay2" style="display:flex;justify-content:center;">
+        <div class="crystal-stat">
+          <div class="stat-big">∞</div>
+          <div class="stat-label">Sites Crafted</div>
+          <div class="stat-line"></div>
+          <p class="stat-tagline">
+            BUILT WITH PURPOSE<br>
+            CRAFTED WITH CARE<br>
+            DESIGNED TO CONVERT
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FEATURES ══════════════════════════════ -->
+  <section id="features">
+    <div class="features-head reveal">
+      <p class="section-label">✦ &nbsp; Why Choose Me &nbsp; ✦</p>
+      <h2 class="section-title">The Three <span class="acc">Pillars</span></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feat-card reveal delay1">
+        <span class="feat-icon">⚡</span>
+        <h3 class="feat-name">Lead Generation</h3>
+        <p class="feat-desc">Every page is engineered to turn visitors into paying customers — strategic CTAs, trust signals, and contact forms that convert around the clock.</p>
+      </div>
+      <div class="feat-card reveal delay2">
+        <span class="feat-icon">📱</span>
+        <h3 class="feat-name">Mobile-First Design</h3>
+        <p class="feat-desc">Over 70% of your customers are searching on their phones. Your site will look flawless on every screen, every device, every time.</p>
+      </div>
+      <div class="feat-card reveal delay3">
+        <span class="feat-icon">🔮</span>
+        <h3 class="feat-name">Local SEO Ready</h3>
+        <p class="feat-desc">Get found when customers nearby search for your trade. Built-in local SEO strategies to help you dominate your service area on Google.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ GALLERY ════════════════════════════════ -->
+  <section id="gallery">
+    <div class="gallery-head reveal">
+      <p class="section-label">✦ &nbsp; The Portfolio &nbsp; ✦</p>
+      <h2 class="section-title">Crafted <span class="acc">Realms</span></h2>
+      <p>A collection of digital worlds forged for tradespeople. Replace these with your own screenshots.</p>
+    </div>
+    <div class="carousel-wrap">
+      <div class="carousel-track" id="cTrack"></div>
+    </div>
+    <div class="carousel-controls">
+      <button class="c-btn" id="cPrev">&#8592;</button>
+      <div class="c-dots" id="cDots"></div>
+      <button class="c-btn" id="cNext">&#8594;</button>
+    </div>
+  </section>
+
+  <!-- ══ PROCESS ════════════════════════════════ -->
+  <section id="process">
+    <div class="process-head reveal">
+      <p class="section-label">✦ &nbsp; The Journey &nbsp; ✦</p>
+      <h2 class="section-title">How the <span class="acc">Magic</span> Happens</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-line"></div>
+      <div class="t-step reveal">
+        <div class="t-text">
+          <h3 class="t-title">Discovery</h3>
+          <p class="t-desc">We talk about your business, goals, and what makes you stand out. A free consultation to understand your vision before a single pixel is placed.</p>
+        </div>
+        <div class="t-num">I</div>
+        <div class="t-void"></div>
+      </div>
+      <div class="t-step reveal">
+        <div class="t-void"></div>
+        <div class="t-num">II</div>
+        <div class="t-text">
+          <h3 class="t-title">Design &amp; Build</h3>
+          <p class="t-desc">I craft your custom website with your brand, content, and personality. You see progress at every milestone — no black boxes here.</p>
+        </div>
+      </div>
+      <div class="t-step reveal">
+        <div class="t-text">
+          <h3 class="t-title">Review &amp; Refine</h3>
+          <p class="t-desc">We polish every detail together. Your feedback shapes the final result until it is exactly right and you are proud to share it.</p>
+        </div>
+        <div class="t-num">III</div>
+        <div class="t-void"></div>
+      </div>
+      <div class="t-step reveal">
+        <div class="t-void"></div>
+        <div class="t-num">IV</div>
+        <div class="t-text">
+          <h3 class="t-title">Launch &amp; Beyond</h3>
+          <p class="t-desc">Your site goes live and starts winning you work. Ongoing support is available to keep everything running perfectly as your business grows.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ CTA ════════════════════════════════════ -->
+  <section id="cta">
+    <div class="cta-glow"></div>
+    <div class="cta-ring"><div class="cta-ring-inner">⚜</div></div>
+    <p class="section-label reveal">✦ &nbsp; Begin Your Journey &nbsp; ✦</p>
+    <h2 class="cta-title reveal">Ready for a <span class="acc">Free Quote?</span></h2>
+    <p class="cta-text reveal">
+      Tell me about your business and what you need. I'll craft a custom proposal —
+      completely free, zero obligation. Your perfect website is one step away.
+    </p>
+    <!-- ⚠ REPLACE THE HREF BELOW WITH YOUR ACTUAL JOTFORM URL -->
+    <a href="https://form.jotform.com/YOUR_FORM_ID" target="_blank" class="btn-cta reveal">
+      ✦ &nbsp; Get Your Free Quote &nbsp; ✦
+    </a>
+    <p class="cta-email-line reveal">
+      OR EMAIL DIRECTLY: &nbsp;
+      <a href="mailto:enessertkan451@gmail.com">enessertkan451@gmail.com</a>
+    </p>
+  </section>
+
+  <!-- ══ FOOTER ═════════════════════════════════ -->
+  <footer>
+    <div class="rune-divider" style="margin-bottom:2.5rem;"><span class="rune-sym">✦</span></div>
+    <div class="footer-logo">Enes Sertkan</div>
+    <ul class="footer-nav">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#gallery">Portfolio</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#cta">Contact</a></li>
+    </ul>
+    <p class="footer-copy">
+      © 2024 Enes Sertkan · Web Design for Trades &amp; Contractors<br>
+      <a href="mailto:enessertkan451@gmail.com">enessertkan451@gmail.com</a>
+    </p>
+  </footer>
+
+</div><!-- /#content -->
+
+<script>
+/* ══════════════════════════════════════════════════
+   THREE.JS  — Magical Background Scene
+══════════════════════════════════════════════════ */
+(function(){
+  const canvas = document.getElementById('bg');
+  const scene  = new THREE.Scene();
+  scene.background = new THREE.Color(0x04040f);
+  scene.fog = new THREE.FogExp2(0x04040f, 0.012);
+
+  const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 500);
+  camera.position.set(0, 0, 30);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth, innerHeight);
+
+  /* ── Lights ── */
+  scene.add(new THREE.AmbientLight(0x1a0a3d, 0.7));
+  const pl1 = new THREE.PointLight(0xc9a84c, 3, 80); pl1.position.set(12,12,10); scene.add(pl1);
+  const pl2 = new THREE.PointLight(0x4ecdc4, 2, 80); pl2.position.set(-15,-8,8);  scene.add(pl2);
+  const pl3 = new THREE.PointLight(0x6622cc, 1.5,60); pl3.position.set(0,20,-10); scene.add(pl3);
+
+  /* ── Stars ── */
+  const starGeo  = new THREE.BufferGeometry();
+  const N_STARS  = 4000;
+  const sPos     = new Float32Array(N_STARS*3);
+  const sCol     = new Float32Array(N_STARS*3);
+  for(let i=0;i<N_STARS;i++){
+    sPos[i*3]   = (Math.random()-.5)*300;
+    sPos[i*3+1] = (Math.random()-.5)*300;
+    sPos[i*3+2] = (Math.random()-.5)*300;
+    const g = Math.random();
+    if(g>.6){  sCol[i*3]=.79; sCol[i*3+1]=.66; sCol[i*3+2]=.3;  } // gold
+    else if(g>.3){ sCol[i*3]=.34;sCol[i*3+1]=.85;sCol[i*3+2]=.82; } // cyan
+    else{          sCol[i*3]=.55;sCol[i*3+1]=.27;sCol[i*3+2]=.8;  } // purple
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(sPos,3));
+  starGeo.setAttribute('color',    new THREE.BufferAttribute(sCol,3));
+  const starMat = new THREE.PointsMaterial({ size:.18, vertexColors:true, transparent:true, opacity:.85, sizeAttenuation:true });
+  const stars   = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  /* ── Floating Crystals ── */
+  const crystals = [];
+  const mats = [
+    new THREE.MeshPhongMaterial({ color:0xc9a84c, emissive:0x3a2800, transparent:true, opacity:.85 }),
+    new THREE.MeshPhongMaterial({ color:0x4ecdc4, emissive:0x002222, transparent:true, opacity:.7 }),
+    new THREE.MeshPhongMaterial({ color:0x7733cc, emissive:0x110022, transparent:true, opacity:.65, wireframe:true }),
+    new THREE.MeshPhongMaterial({ color:0xf0d280, emissive:0x201000, transparent:true, opacity:.5,  wireframe:true }),
+  ];
+  for(let i=0;i<18;i++){
+    const geo = Math.random()>.5
+      ? new THREE.OctahedronGeometry(Math.random()*2+.4)
+      : new THREE.IcosahedronGeometry(Math.random()*1.5+.3, 0);
+    const m   = new THREE.Mesh(geo, mats[Math.floor(Math.random()*mats.length)].clone());
+    m.position.set((Math.random()-.5)*70,(Math.random()-.5)*70,(Math.random()-.5)*25-5);
+    m.userData = {
+      rx:(Math.random()-.5)*.012, ry:(Math.random()-.5)*.012,
+      fs: Math.random()*.0015+.0008, fo:Math.random()*Math.PI*2,
+      oy: m.position.y
+    };
+    scene.add(m); crystals.push(m);
+  }
+
+  /* ── Magical Rings ── */
+  function makeRing(r, tube, col, op, rx, ry){
+    const g = new THREE.TorusGeometry(r, tube, 16, 200);
+    const m = new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:op });
+    const t = new THREE.Mesh(g,m);
+    t.rotation.x = rx; t.rotation.y = ry; scene.add(t); return t;
+  }
+  const ring1 = makeRing(10,.09,0xc9a84c,.28, Math.PI*.3, .2);
+  const ring2 = makeRing(13,.05,0x4ecdc4,.15, Math.PI*.5,.4);
+  const ring3 = makeRing( 7,.06,0x9933ff,.2,  Math.PI*.15,.8);
+
+  /* ── Nebula blob (big transparent sphere) ── */
+  const nebSph = new THREE.Mesh(
+    new THREE.SphereGeometry(20,32,32),
+    new THREE.MeshBasicMaterial({ color:0x1a0840, transparent:true, opacity:.12, side:THREE.BackSide })
+  );
+  scene.add(nebSph);
+
+  /* ── Mouse & Scroll ── */
+  let mx=0, my=0, tmx=0, tmy=0, scrollY=0;
+  document.addEventListener('mousemove', e=>{
+    tmx = (e.clientX/innerWidth -.5)*2;
+    tmy = (e.clientY/innerHeight-.5)*2;
+  });
+  window.addEventListener('scroll', ()=>{ scrollY = window.pageYOffset; });
+
+  /* ── Animate ── */
+  let t = 0;
+  function loop(){
+    requestAnimationFrame(loop);
+    t += .008;
+    mx += (tmx-mx)*.04; my += (tmy-my)*.04;
+
+    camera.position.x += (mx*4 - camera.position.x)*.05;
+    camera.position.y += (-my*3 - camera.position.y)*.05;
+    camera.position.z  = 30 - scrollY*.008;
+    camera.lookAt(0,0,0);
+
+    stars.rotation.y = t*.0004;
+    stars.rotation.x = t*.0002;
+
+    ring1.rotation.z = t*.004;
+    ring2.rotation.z = -t*.003;
+    ring3.rotation.z = t*.006;
+
+    pl1.position.x = Math.sin(t*.6)*15;
+    pl1.position.y = Math.cos(t*.4)*10;
+    pl2.position.x = Math.cos(t*.5)*-15;
+    pl2.position.y = Math.sin(t*.3)*12;
+
+    crystals.forEach(c=>{
+      c.rotation.x += c.userData.rx;
+      c.rotation.y += c.userData.ry;
+      c.position.y  = c.userData.oy + Math.sin(t + c.userData.fo)*2.5;
+    });
+
+    renderer.render(scene, camera);
+  }
+  loop();
+
+  window.addEventListener('resize',()=>{
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════
+   CUSTOM CURSOR + SPARKLES
+══════════════════════════════════════════════════ */
+(function(){
+  const cur = document.getElementById('cursor');
+  const dot = document.getElementById('cursor-dot');
+  let dx=0,dy=0,cx=0,cy=0;
+
+  document.addEventListener('mousemove', e=>{
+    dx = e.clientX; dy = e.clientY;
+    dot.style.left = dx+'px'; dot.style.top = dy+'px';
+    spawnSpark(dx,dy);
+  });
+
+  // Smooth cursor
+  (function animCur(){
+    requestAnimationFrame(animCur);
+    cx += (dx-cx)*.15; cy += (dy-cy)*.15;
+    cur.style.left = cx+'px'; cur.style.top = cy+'px';
+  })();
+
+  // Big cursor on interactive elements
+  document.querySelectorAll('a,button,.feat-card,.trade-chip,.c-item').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('big'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+  });
+
+  let sparkCount=0;
+  function spawnSpark(x,y){
+    if(sparkCount++ % 4 !== 0) return; // every 4th move
+    const s = document.createElement('div');
+    s.className='spark';
+    const angle = Math.random()*Math.PI*2;
+    const dist  = Math.random()*30+10;
+    s.style.cssText = `
+      left:${x}px; top:${y}px;
+      background:${Math.random()>.5?'#c9a84c':'#56d9d0'};
+      --dx:${Math.cos(angle)*dist}px;
+      --dy:${Math.sin(angle)*dist}px;
+    `;
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 700);
+  }
+})();
+
+
+/* ══════════════════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════════════════ */
+(function(){
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('show'); });
+  },{ threshold:.12 });
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+})();
+
+
+/* ══════════════════════════════════════════════════
+   GALLERY CAROUSEL  (1/2 | 1/1 | 1/2 sliding)
+══════════════════════════════════════════════════ */
+(function(){
+  const projects = [
+    { name:'Johnson Plumbing Co.',     type:'Plumbing & Drain Services',   url:'johnsonplumbing.ca',    pb:'pb1' },
+    { name:'Elite Roofing Solutions',  type:'Roofing & Restoration',       url:'eliteroofing.ca',       pb:'pb2' },
+    { name:'Smith Electrical',         type:'Licensed Electricians',       url:'smithelectrical.ca',    pb:'pb3' },
+    { name:'Arctic HVAC Systems',      type:'Heating, Cooling & Air',      url:'arctichvac.ca',         pb:'pb4' },
+    { name:'Oakwood Carpentry',        type:'Custom Woodwork & Renos',     url:'oakwoodcarpentry.ca',   pb:'pb5' },
+    { name:'Premier Concrete Works',   type:'Driveways & Foundations',     url:'premierconcrete.ca',    pb:'pb6' },
+  ];
+
+  const track = document.getElementById('cTrack');
+  const dotsEl= document.getElementById('cDots');
+
+  // Triple the items for seamless infinite loop
+  const all = [...projects,...projects,...projects];
+
+  all.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'c-item';
+    el.innerHTML = `
+      <div class="browser-frame">
+        <div class="browser-bar">
+          <div class="b-dot r"></div><div class="b-dot y"></div><div class="b-dot g"></div>
+          <div class="b-url"><span>www.${p.url}</span></div>
+        </div>
+        <div class="browser-body ${p.pb}">
+          <div class="mock-wrap">
+            <div class="mock-nav">
+              <div class="mock-nav-logo"></div>
+              <div class="mock-nav-links">
+                <div class="mock-nav-link"></div><div class="mock-nav-link"></div><div class="mock-nav-link"></div>
+              </div>
+            </div>
+            <div class="mock-hero-section">
+              <div class="mock-h1"></div>
+              <div class="mock-h2"></div>
+              <div class="mock-cta"></div>
+            </div>
+            <div class="mock-services">
+              <div class="mock-svc"></div><div class="mock-svc"></div><div class="mock-svc"></div>
+            </div>
+          </div>
+          <div class="card-overlay">
+            <h3>${p.name}</h3>
+            <p>${p.type}</p>
+          </div>
+        </div>
+      </div>`;
+    track.appendChild(el);
+  });
+
+  // Dots for original N
+  const N = projects.length;
+  projects.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className='c-dot'+(i===0?' on':'');
+    d.addEventListener('click',()=>{ clearAuto(); goTo(N+i); startAuto(); });
+    dotsEl.appendChild(d);
+  });
+
+  const items = [...track.querySelectorAll('.c-item')];
+  let idx = N; // start in middle set
+  let autoTimer;
+
+  function getItemW(){
+    const f = track.querySelector('.browser-frame');
+    return f ? f.offsetWidth : 520;
+  }
+  const GAP = 36;
+
+  function update(anim=true){
+    if(!anim) track.style.transition='none';
+    else       track.style.transition='transform .62s cubic-bezier(.25,.46,.45,.94)';
+
+    const iw   = getItemW();
+    const step = iw + GAP;
+    const cw   = track.parentElement.offsetWidth;
+    const tx   = (cw-iw)/2 - idx*step;
+    track.style.transform = `translateX(${tx}px)`;
+
+    items.forEach((it,i)=>{
+      const d = Math.abs(i-idx);
+      if(d===0){ it.style.transform='scale(1)';    it.style.opacity='1';   it.style.zIndex='4'; it.style.filter='brightness(1)'; }
+      else if(d===1){ it.style.transform='scale(.78)'; it.style.opacity='.65'; it.style.zIndex='3'; it.style.filter='brightness(.7)'; }
+      else if(d===2){ it.style.transform='scale(.58)'; it.style.opacity='.35'; it.style.zIndex='2'; it.style.filter='brightness(.5)'; }
+      else{           it.style.transform='scale(.42)'; it.style.opacity='.1';  it.style.zIndex='1'; it.style.filter='brightness(.4)'; }
+    });
+
+    const di = ((idx-N)%N+N)%N;
+    document.querySelectorAll('.c-dot').forEach((d,i)=>d.classList.toggle('on',i===di));
+  }
+
+  function goTo(i){ idx=i; update(); }
+
+  function next(){
+    idx++;
+    update();
+    if(idx>=N*2){ setTimeout(()=>{ idx-=N; update(false); },650); }
+  }
+  function prev(){
+    idx--;
+    update();
+    if(idx<N){ setTimeout(()=>{ idx+=N; update(false); },650); }
+  }
+
+  function startAuto(){ autoTimer=setInterval(next,3200); }
+  function clearAuto(){ clearInterval(autoTimer); }
+
+  document.getElementById('cNext').addEventListener('click',()=>{ clearAuto(); next(); startAuto(); });
+  document.getElementById('cPrev').addEventListener('click',()=>{ clearAuto(); prev(); startAuto(); });
+
+  track.addEventListener('mouseenter', clearAuto);
+  track.addEventListener('mouseleave', startAuto);
+
+  // Touch swipe
+  let tx0=0;
+  track.addEventListener('touchstart',e=>{ tx0=e.touches[0].clientX; });
+  track.addEventListener('touchend',  e=>{
+    const d = tx0 - e.changedTouches[0].clientX;
+    if(Math.abs(d)>40){ d>0?next():prev(); }
+  });
+
+  // Click item to center it
+  items.forEach((it,i)=>it.addEventListener('click',()=>{ clearAuto(); goTo(i); startAuto(); }));
+
+  update(false);
+  startAuto();
+  window.addEventListener('resize',()=>update(false));
+})();
+</script>
+</body>
+</html>
