@@ -238,97 +238,177 @@
     .feat-desc { color:var(--mist); font-size:1rem; line-height:1.85; }
 
     /* ── GALLERY ─────────────────────────────── */
-    #gallery { padding:8rem 0; overflow:hidden; position:relative; }
+    #gallery { padding:8rem 0 6rem; overflow:hidden; position:relative; }
     .gallery-head { text-align:center; margin-bottom:3.5rem; padding:0 4rem; }
     .gallery-head p { color:var(--mist); font-style:italic; font-size:1.05rem; line-height:1.8; max-width:500px; margin:.8rem auto 0; }
 
-    .carousel-wrap { position:relative; width:100%; overflow:hidden; padding:2.5rem 0 1rem; }
+    /* Carousel track — NO auto-transition on the track itself, items animate individually */
+    .carousel-wrap {
+      position:relative; width:100%;
+      overflow:hidden; padding:3rem 0 2rem;
+      user-select:none;
+    }
     .carousel-track {
-      display:flex; align-items:center; gap:2.2rem;
-      transition:transform .62s cubic-bezier(.25,.46,.45,.94);
+      display:flex; align-items:flex-start; gap:2.4rem;
       will-change:transform;
     }
     .c-item {
       flex:0 0 auto; position:relative;
-      transition:transform .55s cubic-bezier(.25,.46,.45,.94), opacity .55s, filter .55s;
+      transition:transform .5s cubic-bezier(.25,.46,.45,.94),
+                  opacity  .5s cubic-bezier(.25,.46,.45,.94),
+                  filter   .5s cubic-bezier(.25,.46,.45,.94);
+      cursor:pointer;
     }
 
-    /* Browser mockup card */
+    /* ── Portfolio card wrapper ── */
+    .portfolio-card { display:flex; flex-direction:column; width:500px; }
+
+    /* ── Browser chrome ── */
     .browser-frame {
-      width:520px; background:rgba(8,6,20,.95);
-      border:1px solid rgba(201,168,76,.3);
-      box-shadow:0 30px 80px rgba(0,0,0,.6);
-      overflow:hidden;
+      width:100%; background:rgba(8,6,20,.97);
+      border:1px solid rgba(201,168,76,.32);
+      border-bottom:none;
+      box-shadow:0 -4px 40px rgba(0,0,0,.5);
     }
     .browser-bar {
-      height:38px; background:rgba(12,10,26,.98);
+      height:38px; background:rgba(10,8,22,.99);
       border-bottom:1px solid rgba(201,168,76,.15);
       display:flex; align-items:center; padding:0 1rem; gap:.45rem;
     }
-    .b-dot { width:10px; height:10px; border-radius:50%; }
+    .b-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
     .b-dot.r{background:#ff5f56;} .b-dot.y{background:#ffbd2e;} .b-dot.g{background:#27c93f;}
     .b-url {
       flex:1; margin-left:.5rem; height:22px;
-      background:rgba(255,255,255,.05); border-radius:3px;
-      display:flex; align-items:center; padding:0 .7rem;
+      background:rgba(255,255,255,.04); border-radius:3px;
+      display:flex; align-items:center; padding:0 .75rem;
     }
-    .b-url span { font-size:.62rem; color:rgba(243,226,192,.35); font-family:monospace; }
-    .browser-body { height:300px; position:relative; overflow:hidden; }
+    .b-url span { font-size:.62rem; color:rgba(243,226,192,.4); font-family:monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* Preview color themes */
-    .pb1{background:linear-gradient(145deg,#0c1e2a,#1a3a4a,#0d2535);}
-    .pb2{background:linear-gradient(145deg,#1a0800,#3a1200,#5a2000);}
-    .pb3{background:linear-gradient(145deg,#0a0f1a,#141e35,#0d1830);}
-    .pb4{background:linear-gradient(145deg,#0a1420,#152540,#0c1c35);}
-    .pb5{background:linear-gradient(145deg,#0d1a0a,#1a3515,#0e2510);}
-    .pb6{background:linear-gradient(145deg,#180a2a,#2a1460,#0e0820);}
+    /* ── Screenshot window ── */
+    .browser-body {
+      width:100%; height:310px;
+      position:relative; overflow:hidden;
+      background:#07060f;
+    }
+    .browser-body img {
+      width:100%; height:100%;
+      object-fit:cover; object-position:top center;
+      display:block;
+      transition:transform 7s ease, opacity .4s;
+      will-change:transform;
+    }
+    .c-item.is-center .browser-body img { transform:translateY(-18%); }
+    .browser-body img.loaded { opacity:1; }
+    /* Skeleton shimmer while loading */
+    .browser-body::before {
+      content:''; position:absolute; inset:0; z-index:1;
+      background:linear-gradient(135deg,#0a0818,#140d28,#0a0818);
+      transition:opacity .5s;
+    }
+    .browser-body.ready::before { opacity:0; pointer-events:none; }
+    /* Fallback mock for placeholder sites */
+    .screen-mock {
+      width:100%; height:100%;
+      display:flex; flex-direction:column;
+      position:relative; overflow:hidden;
+    }
+    .sm-nav{ height:30px; background:rgba(255,255,255,.08); display:flex; align-items:center; padding:0 16px; gap:8px; }
+    .sm-logo{ width:56px; height:7px; border-radius:3px; background:rgba(255,255,255,.45); }
+    .sm-links{ display:flex; gap:7px; margin-left:auto; }
+    .sm-link{ width:28px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); }
+    .sm-hero{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:0 24px; }
+    .sm-h1{ width:62%; height:11px; border-radius:5px; background:rgba(255,255,255,.5); }
+    .sm-h2{ width:42%; height:7px; border-radius:4px; background:rgba(255,255,255,.28); }
+    .sm-cta{ width:76px; height:24px; border-radius:4px; background:rgba(201,168,76,.35); margin-top:4px; }
+    .sm-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:8px 14px 14px; }
+    .sm-card{ height:52px; border-radius:5px; background:rgba(255,255,255,.09); }
 
-    .mock-wrap { width:100%; height:100%; position:relative; }
-    .mock-nav {
-      height:32px; display:flex; align-items:center;
-      justify-content:space-between; padding:0 18px;
-      background:rgba(0,0,0,.35);
+    /* ── Card info panel below the browser ── */
+    .card-info {
+      width:100%;
+      background:linear-gradient(180deg,rgba(10,8,22,.99) 0%,rgba(5,4,14,1) 100%);
+      border:1px solid rgba(201,168,76,.22); border-top:none;
+      padding:1.3rem 1.5rem 1.6rem;
+      box-shadow:0 28px 60px rgba(0,0,0,.55);
     }
-    .mock-nav-logo { width:60px; height:6px; border-radius:3px; background:rgba(255,255,255,.45); }
-    .mock-nav-links { display:flex; gap:8px; }
-    .mock-nav-link { width:30px; height:5px; border-radius:3px; background:rgba(255,255,255,.2); }
-    .mock-hero-section {
-      height:42%; display:flex; flex-direction:column;
-      align-items:center; justify-content:center; gap:7px; padding:0 30px;
-    }
-    .mock-h1 { width:65%; height:10px; border-radius:5px; background:rgba(255,255,255,.55); }
-    .mock-h2 { width:45%; height:7px; border-radius:4px; background:rgba(255,255,255,.3); }
-    .mock-cta { width:80px; height:22px; border-radius:3px; background:rgba(255,255,255,.3); margin-top:4px; }
-    .mock-services {
-      padding:10px 14px; display:grid;
-      grid-template-columns:repeat(3,1fr); gap:8px;
-    }
-    .mock-svc { height:55px; border-radius:4px; background:rgba(255,255,255,.1); }
-    .card-overlay {
-      position:absolute; bottom:0; left:0; right:0;
-      padding:1rem 1.2rem;
-      background:linear-gradient(to top,rgba(0,0,0,.88) 0%,transparent 100%);
-    }
-    .card-overlay h3 { font-family:'Cinzel',serif; font-size:.95rem; color:var(--gold); margin-bottom:.2rem; }
-    .card-overlay p { font-size:.75rem; color:var(--mist); opacity:.75; }
 
+    /* Category badge */
+    .card-badge {
+      display:inline-block; font-family:'Cinzel',serif; font-size:.6rem;
+      letter-spacing:2.5px; text-transform:uppercase;
+      color:var(--cyan); border:1px solid rgba(86,217,208,.22);
+      padding:.22rem .65rem; margin-bottom:.9rem; opacity:.85;
+    }
+
+    /* Visit button */
+    .visit-btn {
+      display:flex; align-items:center; justify-content:center; gap:.65rem;
+      width:100%; padding:.72rem 1rem; margin-bottom:1.35rem;
+      font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:3px;
+      text-transform:uppercase; text-decoration:none;
+      color:var(--gold); background:transparent;
+      border:1px solid rgba(201,168,76,.32);
+      transition:all .32s; position:relative; overflow:hidden; cursor:pointer;
+    }
+    .visit-btn::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent,rgba(201,168,76,.12),transparent);
+      transform:translateX(-100%); transition:transform .55s;
+    }
+    .visit-btn:hover::before { transform:translateX(100%); }
+    .visit-btn:hover {
+      border-color:var(--gold); color:var(--gold-light);
+      box-shadow:var(--glow-gold); background:rgba(201,168,76,.05);
+    }
+    .visit-icon { font-size:.9rem; transition:transform .28s; }
+    .visit-btn:hover .visit-icon { transform:translate(3px,-3px); }
+    .visit-btn.no-link { border-color:rgba(201,168,76,.14); color:rgba(201,168,76,.35); pointer-events:none; }
+
+    /* Review block */
+    .card-review {
+      border-top:1px solid rgba(201,168,76,.1);
+      padding-top:1.1rem;
+    }
+    .rev-stars {
+      color:var(--gold); font-size:1rem; letter-spacing:3px;
+      margin-bottom:.55rem;
+      text-shadow:0 0 8px rgba(201,168,76,.45);
+    }
+    .rev-text {
+      font-family:'EB Garamond',serif; font-style:italic;
+      color:var(--mist); font-size:.97rem; line-height:1.75;
+      margin-bottom:.55rem;
+    }
+    .rev-author {
+      font-family:'Cinzel',serif; font-size:.64rem;
+      letter-spacing:2px; color:var(--cyan); opacity:.75;
+    }
+
+    /* ── Carousel controls ── */
     .carousel-controls {
       display:flex; justify-content:center; align-items:center;
-      gap:2rem; margin-top:2.5rem; padding:0 4rem;
+      gap:2.2rem; margin-top:2rem; padding:0 4rem;
     }
     .c-btn {
-      width:48px; height:48px; border:1px solid rgba(201,168,76,.35);
-      background:transparent; color:var(--gold); cursor:none;
-      font-size:1.15rem; transition:all .3s;
+      width:52px; height:52px; border:1px solid rgba(201,168,76,.35);
+      background:transparent; color:var(--gold); cursor:pointer;
+      font-size:1.2rem; transition:all .3s;
       display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
     }
     .c-btn:hover { background:rgba(201,168,76,.1); box-shadow:var(--glow-gold); }
+    .c-btn:disabled { opacity:.25; pointer-events:none; }
     .c-dots { display:flex; gap:.7rem; align-items:center; }
     .c-dot {
       width:6px; height:6px; border-radius:50%;
-      background:rgba(201,168,76,.25); transition:all .3s; cursor:none;
+      background:rgba(201,168,76,.25); transition:all .3s; cursor:pointer;
     }
     .c-dot.on { background:var(--gold); width:22px; border-radius:3px; box-shadow:var(--glow-gold); }
+    /* Counter label */
+    .c-counter {
+      font-family:'Cinzel',serif; font-size:.68rem; letter-spacing:2px;
+      color:var(--gold-dim); opacity:.7; min-width:60px; text-align:center;
+    }
 
     /* ── PROCESS ─────────────────────────────── */
     #process { padding:8rem 4rem; position:relative; }
@@ -451,7 +531,7 @@
       .t-void{display:none;}
       .hero-btns{flex-direction:column;align-items:center;}
       #about,#features,#process,#cta{padding:5rem 2rem;}
-      .browser-frame{width:300px;}
+      .portfolio-card{width:300px;}
       .browser-body{height:200px;}
     }
   </style>
@@ -561,15 +641,16 @@
     <div class="gallery-head reveal">
       <p class="section-label">✦ &nbsp; The Portfolio &nbsp; ✦</p>
       <h2 class="section-title">Crafted <span class="acc">Realms</span></h2>
-      <p>A collection of digital worlds forged for tradespeople. Replace these with your own screenshots.</p>
+      <p>Click any card to explore — then visit the live site below.</p>
     </div>
-    <div class="carousel-wrap">
+    <div class="carousel-wrap" id="cWrap">
       <div class="carousel-track" id="cTrack"></div>
     </div>
     <div class="carousel-controls">
-      <button class="c-btn" id="cPrev">&#8592;</button>
+      <button class="c-btn" id="cPrev" aria-label="Previous">&#8592;</button>
       <div class="c-dots" id="cDots"></div>
-      <button class="c-btn" id="cNext">&#8594;</button>
+      <div class="c-counter" id="cCounter">1 / 6</div>
+      <button class="c-btn" id="cNext" aria-label="Next">&#8594;</button>
     </div>
   </section>
 
@@ -846,136 +927,271 @@
 
 
 /* ══════════════════════════════════════════════════
-   GALLERY CAROUSEL  (1/2 | 1/1 | 1/2 sliding)
+   GALLERY CAROUSEL  — manual, real screenshots
 ══════════════════════════════════════════════════ */
 (function(){
+
+  /* ── Project data ─────────────────────────────
+     hasScreenshot:true  → loads via thum.io
+     hasScreenshot:false → shows styled mock
+  ─────────────────────────────────────────────── */
+  const SHOT = 'https://image.thum.io/get/width/540/crop/340/noanimate/';
+
   const projects = [
-    { name:'Johnson Plumbing Co.',     type:'Plumbing & Drain Services',   url:'johnsonplumbing.ca',    pb:'pb1' },
-    { name:'Elite Roofing Solutions',  type:'Roofing & Restoration',       url:'eliteroofing.ca',       pb:'pb2' },
-    { name:'Smith Electrical',         type:'Licensed Electricians',       url:'smithelectrical.ca',    pb:'pb3' },
-    { name:'Arctic HVAC Systems',      type:'Heating, Cooling & Air',      url:'arctichvac.ca',         pb:'pb4' },
-    { name:'Oakwood Carpentry',        type:'Custom Woodwork & Renos',     url:'oakwoodcarpentry.ca',   pb:'pb5' },
-    { name:'Premier Concrete Works',   type:'Driveways & Foundations',     url:'premierconcrete.ca',    pb:'pb6' },
+    {
+      name: 'STEFANO FenDeck',
+      type: 'Fence & Deck Services',
+      url:  'https://stefanofendeck.netlify.app/',
+      hasScreenshot: true,
+      stars: 5,
+      review: '"Enes built us something we are truly proud of. Leads started coming in within the first week of going live!"',
+      reviewer: '— STAFANO FenDeck Owner'
+    },
+    {
+      name: 'Student Portfolio',
+      type: 'Portfolio Website',
+      url:  'https://hardbloods.framer.website/',
+      hasScreenshot: true,
+      stars: 5,
+      review: '"Absolutely nailed the vision. Clean, fast, and exactly what I needed to stand out from the crowd."',
+      reviewer: '— Alex M., Design Student'
+    },
+    {
+      name: 'Yusa Chef',
+      type: 'Homemade Chef',
+      url:  'https://funny-ganache-e7a9c7.netlify.app/',
+      hasScreenshot: false,
+      stars: 5,
+      review: '"I wanted to make a website for my homemade food business but had no idea where to start. Enes took care of everything and the result is amazing!"',
+      reviewer: '— Yusa Chef, Homemade Food Entrepreneur'
+    },
+    {
+      name: 'Arctic HVAC Systems',
+      type: 'Heating, Cooling & Air',
+      url:  null,
+      hasScreenshot: false,
+      stars: 5,
+      review: '"Professional, fast, and the site looks incredible. Exactly what our company needed to win more work."',
+      reviewer: '— Ryan K., HVAC Owner'
+    },
+    {
+      name: 'Oakwood Carpentry',
+      type: 'Custom Woodwork & Renos',
+      url:  null,
+      hasScreenshot: false,
+      stars: 5,
+      review: '"We had zero online presence. Now we rank on Google and get fresh inquiries every single day."',
+      reviewer: '— Mike O., Master Carpenter'
+    },
+    {
+      name: 'Premier Concrete',
+      type: 'Driveways & Foundations',
+      url:  null,
+      hasScreenshot: false,
+      stars: 5,
+      review: '"Enes understood our trade and built something that actually speaks to our customers. Couldn\'t be happier."',
+      reviewer: '— Carlos P., Concrete Specialist'
+    }
   ];
 
-  const track = document.getElementById('cTrack');
-  const dotsEl= document.getElementById('cDots');
+  const N       = projects.length;
+  const track   = document.getElementById('cTrack');
+  const dotsEl  = document.getElementById('cDots');
+  const counter = document.getElementById('cCounter');
+  const wrap    = document.getElementById('cWrap');
+  let   idx     = 0;      // current active index (0-based)
 
-  // Triple the items for seamless infinite loop
-  const all = [...projects,...projects,...projects];
+  /* ── Build cards ──────────────────────────────── */
+  projects.forEach((p, i) => {
+    /* Screenshot or fallback mock */
+    let bodyHTML;
+    if (p.hasScreenshot) {
+      bodyHTML = `<img
+        src="${SHOT}${p.url}"
+        alt="${p.name} screenshot"
+        loading="lazy"
+        onload="this.parentElement.classList.add('ready')"
+        onerror="this.style.display='none';this.parentElement.classList.add('ready')"
+      />`;
+    } else {
+      bodyHTML = `
+        <div class="screen-mock" style="background:linear-gradient(145deg,#0a0f1e,#14203a,#0a0f1e)">
+          <div class="sm-nav"><div class="sm-logo"></div><div class="sm-links"><div class="sm-link"></div><div class="sm-link"></div><div class="sm-link"></div></div></div>
+          <div class="sm-hero"><div class="sm-h1"></div><div class="sm-h2"></div><div class="sm-cta"></div></div>
+          <div class="sm-cards"><div class="sm-card"></div><div class="sm-card"></div><div class="sm-card"></div></div>
+        </div>`;
+    }
 
-  all.forEach(p=>{
+    /* Stars string */
+    const starsHTML = '★'.repeat(p.stars) + '☆'.repeat(5 - p.stars);
+
+    /* Visit button — disabled if no live URL */
+    const visitBtn = p.url
+      ? `<a href="${p.url}" target="_blank" rel="noopener" class="visit-btn">
+           <span class="visit-icon">↗</span>
+           <span>Visit ${p.name}</span>
+         </a>`
+      : `<span class="visit-btn no-link">
+           <span class="visit-icon">🔒</span>
+           <span>${p.name} — Coming Soon</span>
+         </span>`;
+
     const el = document.createElement('div');
     el.className = 'c-item';
+    el.dataset.idx = i;
     el.innerHTML = `
-      <div class="browser-frame">
-        <div class="browser-bar">
-          <div class="b-dot r"></div><div class="b-dot y"></div><div class="b-dot g"></div>
-          <div class="b-url"><span>www.${p.url}</span></div>
-        </div>
-        <div class="browser-body ${p.pb}">
-          <div class="mock-wrap">
-            <div class="mock-nav">
-              <div class="mock-nav-logo"></div>
-              <div class="mock-nav-links">
-                <div class="mock-nav-link"></div><div class="mock-nav-link"></div><div class="mock-nav-link"></div>
-              </div>
-            </div>
-            <div class="mock-hero-section">
-              <div class="mock-h1"></div>
-              <div class="mock-h2"></div>
-              <div class="mock-cta"></div>
-            </div>
-            <div class="mock-services">
-              <div class="mock-svc"></div><div class="mock-svc"></div><div class="mock-svc"></div>
-            </div>
+      <div class="portfolio-card">
+        <div class="browser-frame">
+          <div class="browser-bar">
+            <div class="b-dot r"></div>
+            <div class="b-dot y"></div>
+            <div class="b-dot g"></div>
+            <div class="b-url"><span>${p.url ? p.url.replace(/^https?:\/\//,'') : p.name.toLowerCase().replace(/\s+/g,'')+'.ca'}</span></div>
           </div>
-          <div class="card-overlay">
-            <h3>${p.name}</h3>
-            <p>${p.type}</p>
+          <div class="browser-body">${bodyHTML}</div>
+        </div>
+        <div class="card-info">
+          <div class="card-badge">${p.type}</div>
+          ${visitBtn}
+          <div class="card-review">
+            <div class="rev-stars">${starsHTML}</div>
+            <p class="rev-text">${p.review}</p>
+            <div class="rev-author">${p.reviewer}</div>
           </div>
         </div>
       </div>`;
+
+    /* Click non-center card → navigate to it */
+    el.addEventListener('click', () => { if(i !== idx) goTo(i); });
     track.appendChild(el);
   });
 
-  // Dots for original N
-  const N = projects.length;
-  projects.forEach((_,i)=>{
+  /* ── Dots ─────────────────────────────────────── */
+  projects.forEach((_, i) => {
     const d = document.createElement('div');
-    d.className='c-dot'+(i===0?' on':'');
-    d.addEventListener('click',()=>{ clearAuto(); goTo(N+i); startAuto(); });
+    d.className = 'c-dot' + (i === 0 ? ' on' : '');
+    d.addEventListener('click', () => goTo(i));
     dotsEl.appendChild(d);
   });
 
   const items = [...track.querySelectorAll('.c-item')];
-  let idx = N; // start in middle set
-  let autoTimer;
 
-  function getItemW(){
-    const f = track.querySelector('.browser-frame');
-    return f ? f.offsetWidth : 520;
+  /* ── Layout update ────────────────────────────── */
+  function cardWidth() {
+    const c = items[0]?.querySelector('.portfolio-card');
+    return c ? c.offsetWidth : 500;
   }
-  const GAP = 36;
+  const GAP = 32;
 
-  function update(anim=true){
-    if(!anim) track.style.transition='none';
-    else       track.style.transition='transform .62s cubic-bezier(.25,.46,.45,.94)';
-
-    const iw   = getItemW();
+  function update(animate = true) {
+    const cw   = wrap.offsetWidth;
+    const iw   = cardWidth();
     const step = iw + GAP;
-    const cw   = track.parentElement.offsetWidth;
-    const tx   = (cw-iw)/2 - idx*step;
+    const tx   = (cw - iw) / 2 - idx * step;
+
+    /* Apply translate to track */
+    track.style.transition = animate
+      ? 'transform .52s cubic-bezier(.25,.46,.45,.94)'
+      : 'none';
     track.style.transform = `translateX(${tx}px)`;
 
-    items.forEach((it,i)=>{
-      const d = Math.abs(i-idx);
-      if(d===0){ it.style.transform='scale(1)';    it.style.opacity='1';   it.style.zIndex='4'; it.style.filter='brightness(1)'; }
-      else if(d===1){ it.style.transform='scale(.78)'; it.style.opacity='.65'; it.style.zIndex='3'; it.style.filter='brightness(.7)'; }
-      else if(d===2){ it.style.transform='scale(.58)'; it.style.opacity='.35'; it.style.zIndex='2'; it.style.filter='brightness(.5)'; }
-      else{           it.style.transform='scale(.42)'; it.style.opacity='.1';  it.style.zIndex='1'; it.style.filter='brightness(.4)'; }
+    /* Scale + fade side items */
+    items.forEach((it, i) => {
+      const dist = Math.abs(i - idx);
+      it.classList.toggle('is-center', i === idx);
+      if (dist === 0) {
+        it.style.transform = 'scale(1)';
+        it.style.opacity   = '1';
+        it.style.filter    = 'brightness(1)';
+        it.style.zIndex    = '4';
+        it.style.pointerEvents = 'auto';
+      } else if (dist === 1) {
+        it.style.transform = 'scale(.80)';
+        it.style.opacity   = '.58';
+        it.style.filter    = 'brightness(.65)';
+        it.style.zIndex    = '3';
+        it.style.pointerEvents = 'auto';
+      } else if (dist === 2) {
+        it.style.transform = 'scale(.62)';
+        it.style.opacity   = '.32';
+        it.style.filter    = 'brightness(.5)';
+        it.style.zIndex    = '2';
+        it.style.pointerEvents = 'auto';
+      } else {
+        it.style.transform = 'scale(.46)';
+        it.style.opacity   = '.1';
+        it.style.filter    = 'brightness(.4)';
+        it.style.zIndex    = '1';
+        it.style.pointerEvents = 'none';
+      }
     });
 
-    const di = ((idx-N)%N+N)%N;
-    document.querySelectorAll('.c-dot').forEach((d,i)=>d.classList.toggle('on',i===di));
+    /* Dots */
+    document.querySelectorAll('.c-dot').forEach((d, i) =>
+      d.classList.toggle('on', i === idx));
+
+    /* Counter */
+    if (counter) counter.textContent = `${idx + 1} / ${N}`;
+
+    /* Prev / Next button states */
+    document.getElementById('cPrev').disabled = idx === 0;
+    document.getElementById('cNext').disabled = idx === N - 1;
   }
 
-  function goTo(i){ idx=i; update(); }
-
-  function next(){
-    idx++;
-    update();
-    if(idx>=N*2){ setTimeout(()=>{ idx-=N; update(false); },650); }
-  }
-  function prev(){
-    idx--;
-    update();
-    if(idx<N){ setTimeout(()=>{ idx+=N; update(false); },650); }
+  function goTo(i) {
+    idx = Math.max(0, Math.min(N - 1, i));
+    update(true);
   }
 
-  function startAuto(){ autoTimer=setInterval(next,3200); }
-  function clearAuto(){ clearInterval(autoTimer); }
+  /* ── Arrow buttons ────────────────────────────── */
+  document.getElementById('cNext').addEventListener('click', () => goTo(idx + 1));
+  document.getElementById('cPrev').addEventListener('click', () => goTo(idx - 1));
 
-  document.getElementById('cNext').addEventListener('click',()=>{ clearAuto(); next(); startAuto(); });
-  document.getElementById('cPrev').addEventListener('click',()=>{ clearAuto(); prev(); startAuto(); });
-
-  track.addEventListener('mouseenter', clearAuto);
-  track.addEventListener('mouseleave', startAuto);
-
-  // Touch swipe
-  let tx0=0;
-  track.addEventListener('touchstart',e=>{ tx0=e.touches[0].clientX; });
-  track.addEventListener('touchend',  e=>{
-    const d = tx0 - e.changedTouches[0].clientX;
-    if(Math.abs(d)>40){ d>0?next():prev(); }
+  /* ── Keyboard ─────────────────────────────────── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') goTo(idx + 1);
+    if (e.key === 'ArrowLeft')  goTo(idx - 1);
   });
 
-  // Click item to center it
-  items.forEach((it,i)=>it.addEventListener('click',()=>{ clearAuto(); goTo(i); startAuto(); }));
+  /* ── Touch / drag swipe ───────────────────────── */
+  let dragStartX = 0, dragStartIdx = 0, isDragging = false, dragDelta = 0;
 
+  function onDragStart(x) {
+    isDragging  = true;
+    dragStartX  = x;
+    dragStartIdx = idx;
+    dragDelta   = 0;
+    track.style.transition = 'none';
+  }
+  function onDragMove(x) {
+    if (!isDragging) return;
+    dragDelta = x - dragStartX;
+    const cw = wrap.offsetWidth, iw = cardWidth(), step = iw + GAP;
+    const baseTx = (cw - iw) / 2 - dragStartIdx * step;
+    track.style.transform = `translateX(${baseTx + dragDelta}px)`;
+  }
+  function onDragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    const threshold = cardWidth() * 0.25;
+    if      (dragDelta < -threshold) goTo(dragStartIdx + 1);
+    else if (dragDelta >  threshold) goTo(dragStartIdx - 1);
+    else                              goTo(dragStartIdx);
+  }
+
+  /* Mouse drag */
+  wrap.addEventListener('mousedown',  e => { e.preventDefault(); onDragStart(e.clientX); });
+  window.addEventListener('mousemove', e => { if (isDragging) onDragMove(e.clientX); });
+  window.addEventListener('mouseup',   ()  => onDragEnd());
+
+  /* Touch drag */
+  wrap.addEventListener('touchstart', e => onDragStart(e.touches[0].clientX), { passive:true });
+  wrap.addEventListener('touchmove',  e => onDragMove(e.touches[0].clientX),  { passive:true });
+  wrap.addEventListener('touchend',   ()  => onDragEnd());
+
+  /* ── Init ─────────────────────────────────────── */
   update(false);
-  startAuto();
-  window.addEventListener('resize',()=>update(false));
+  window.addEventListener('resize', () => update(false));
 })();
 </script>
 </body>
